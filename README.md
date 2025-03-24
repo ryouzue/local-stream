@@ -1,5 +1,5 @@
 # Video list
 A locally hosted video platform for watching downloaded videos
 
-If you notice paths aligning with missing directories/files, it's normal
-This is in beta, there is no version semanting to keep track of, expect issues
+- This project is in beta so expect issues 
+- There is no semantic versioning to keep track of the progress

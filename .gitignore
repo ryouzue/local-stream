@@ -1,0 +1,11 @@
+# Custom
+node_modules
+package-lock.json
+.backup
+
+_fonts
+_icons
+_media
+
+.vscode/*
+.env

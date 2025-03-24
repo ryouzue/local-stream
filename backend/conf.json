@@ -1,0 +1,8 @@
+{
+  "media": "E:\\.localhost\\.media",
+  "debug": true,
+  "reply": true,
+  "webhook": {
+    "enable": false
+  }
+}

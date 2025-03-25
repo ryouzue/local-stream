@@ -38,7 +38,6 @@ const Player = ({ video, state }) => {
   const onLoadStart = () => {
     if(videoRef.current) {
       setTime({});
-
       console.log('onLoadStart', time);
     }
 
@@ -47,19 +46,17 @@ const Player = ({ video, state }) => {
   }
 
   const onLoadedData = () => {
-    if(videoRef.current) {
-      const tot = videoRef.current.duration;
-      if(isFinite(tot)) {
-        setTime({ 
-          tot: forTime(tot) 
-        });
-      }
-
-      console.log('onLoadedData', time);
-    }
-
     setLoad(false);
     setStatus(true);
+  }
+
+  const onLoadedMetadata = () => {
+    if(videoRef.current) {
+      const tot = videoRef.current?.duration;
+      isFinite(tot) && setTime({ 
+        tot: forTime(tot) 
+      });
+    }
   }
 
   const onTimeUpdate = () => {
@@ -72,16 +69,14 @@ const Player = ({ video, state }) => {
         cur: forTime(cur),
         rem: forTime(rem)
       }));
-
-      console.log('onTimeUpdate', time);
     }
   }
 
-  const forTime = (time) => {
-    const zf = new Intl.NumberFormat(undefined, {
-      minimumIntegerDigits: 2
-    })
+  const zf = new Intl.NumberFormat(undefined, {
+    minimumIntegerDigits: 2
+  })
 
+  const forTime = (time) => {
     const sec = Math.floor(time % 60);
     const min = Math.floor(time / 60) % 60;
     const hr = Math.floor(time / 3600);
@@ -142,6 +137,7 @@ const Player = ({ video, state }) => {
         onDoubleClick={toggleFullscreen}
         onLoadStart={onLoadStart}
         onLoadedData={onLoadedData}
+        onLoadedMetadata={onLoadedMetadata}
         onEnded={togglePlay}
         onVolumeChange={() => setVolume(volume)}
         onTimeUpdate={onTimeUpdate}

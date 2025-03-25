@@ -8,22 +8,97 @@
 ## Future plans - 3 / 25 / 2025
 
 1. Rewrite the backend (again) plus include mongo database for faster performance
-> Create an entry in the database for every non-recognized video
-2. Come up with or, find a 'proper' data form to follow for data entries on the backend
+> Create an entry in the database for non saved content in specific collection/s
+2. **UPDATED**: Improve data entries on the backend
+
+<details>
+  <summary>New - mongo Anime schema</summary>
+
 ```js
 {
-  "id": "{unique_identifier-min_range_x6}",
-  "name": "{file_name} : null",
-  "description": "{file_description} : null",
-  "length": "{length_in_ms}",
-  "size": "{size_in_bytes}",
-  "source": "http://localhost:3006/video/{unique_identifier}",
-  "image": {
-    "size": "{size_in_bytes}",
-    "source": "http://localhost:3006/image/{unique_identifier}"
-  }
+  eId: {
+    type: Number,
+    unique: true
+  },
+  title: {
+    eng: String,
+    romaji: String,
+    native: String
+  },
+  description: String,
+  type: {
+    type: String,
+    enum: ['series', 'movie', 'special']
+  },
+  status: {
+    type: String,
+    enum: ['not yet released', 'releasing', 'finished']
+  },
+  episodes: Number,
+  duration: Number,
+  date: {
+    srt: Date,
+    end: Date
+  },
+  season: {
+    type: String,
+    enum: ['winter', 'spring', 'summer', 'fall'],
+    year: Number
+  },
+  popularity: Number,
+  favourites: Number,
+  genres: [String],
+  rating: Number,
+  coverImage: {
+    lr: String,
+    md: String,
+    sm: String
+  },
+  bannerImage: String,
+  isAdult: {
+    type: Boolean,
+    default: false
+  },
+  origin: {
+    type: String,
+    enum: ['japan', 'china', 'korea', 'other']
+  },
+  synonym: [String]
 }
 ```
+</details>
+<details>
+  <summary>New - mongo Video schema</summary>
+  
+```js
+{
+  eId: {
+    type: Number,
+    unique: true
+  },
+  title: String,
+  description: String,
+  type: {
+    type: String,
+    enum: ['static', 'stream'],
+    default: 'static'
+  },
+  isAdult: {
+    type: Boolean,
+    default: false
+  },
+  length: {
+    time: Number,
+    size: Number
+  },
+  video: {
+    type: String,
+    required: true
+  },
+  cover: String
+}
+```
+</details>
 
 <br>
 

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import useQuery from './hooks/query';
 
 const Paginate = ({ total, perPage, onChange }) => {
@@ -23,16 +23,6 @@ const Paginate = ({ total, perPage, onChange }) => {
     setPage(num);
     onChange(num);
   }
-
-  const onKeyDown = (event) => {
-    if(event.key === 'ArrowLeft') handlePrev();
-    if(event.key === 'ArrowRight') handleNext();
-  }
-
-  useEffect(() => {
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown);
-  })
 
   return (
     <div className='paginate'>

@@ -1,28 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-import { PlaySVG, PauseSVG, ArrowDRSVG, ArrowULSVG } from './_icons/.export';
+import { PlaySVG, PauseSVG, ArrowDRSVG, ArrowULSVG, VolumeMuteSVG, VolumeMinSVG, VolumeMidSVG, VolumeMaxSVG } from './_icons/.export';
+import { log } from '../utils/common.js';
+
 import Loading from './loading';
 
-import { log } from '../utils/common.js';
-import useQuery from './hooks/query';
-
 const Player = ({ video, state }) => {
-  const { 
-    loadVideo, setLoadVideo,
-  } = useQuery();
-
-   /* eslint-disable */
-  const [anim, setAnim] = useState('');
-  const [isPlay, setIsPlay] = useState(false);
+  const [load, setLoad] = useState(true);
+  const [status, setStatus] = useState(false);
   const [isFull, setIsFull] = useState(false);
+  const [volume, setVolume] = useState(1);
+  const [time, setTime] = useState({});
   const videoRef = useRef(null);
 
   const togglePlay = () => {
-    if(loadVideo) return;
-    if(videoRef.current) isPlay
+    if(load) return;
+    if(videoRef.current) status
       ? videoRef.current.pause()
       : videoRef.current.play();
-    setIsPlay(!isPlay);
+    setStatus(!status);
   };
 
   const toggleFullscreen = () => {
@@ -32,15 +28,94 @@ const Player = ({ video, state }) => {
     setIsFull(!isFull);
   };
 
-  const onKeyDown = (event) => {
-    if(event.key === 'Escape' && !isFull) {
-      event.preventDefault();
-      toggleFullscreen();
+  const volumeIconRender = () => {
+    if(volume > .01 && volume <= .33) return <VolumeMinSVG size={26} />;
+    else if(volume > .33 && volume <= .66) return <VolumeMidSVG size={26} />;
+    else if(volume > .66) return <VolumeMaxSVG size={26} />;
+    else return <VolumeMuteSVG size={26} />;
+  }
+
+  const onLoadStart = () => {
+    if(videoRef.current) {
+      setTime({});
+
+      console.log('onLoadStart', time);
     }
 
-    if(event.key === ' ') {
-      event.preventDefault();
-      togglePlay();
+    setLoad(true);
+    setStatus(false)
+  }
+
+  const onLoadedData = () => {
+    if(videoRef.current) {
+      const tot = videoRef.current.duration;
+      if(isFinite(tot)) {
+        setTime({ 
+          tot: forTime(tot) 
+        });
+      }
+
+      console.log('onLoadedData', time);
+    }
+
+    setLoad(false);
+    setStatus(true);
+  }
+
+  const onTimeUpdate = () => {
+    if(videoRef.current) {
+      const tot = videoRef.current.duration;
+      const cur = videoRef.current.currentTime;
+      const rem = tot - cur;
+      setTime(prev => ({
+        ...prev,
+        cur: forTime(cur),
+        rem: forTime(rem)
+      }));
+
+      console.log('onTimeUpdate', time);
+    }
+  }
+
+  const forTime = (time) => {
+    const zf = new Intl.NumberFormat(undefined, {
+      minimumIntegerDigits: 2
+    })
+
+    const sec = Math.floor(time % 60);
+    const min = Math.floor(time / 60) % 60;
+    const hr = Math.floor(time / 3600);
+
+    const result = `${hr ? zf.format(hr) + ':' : ''}${zf.format(min)}:${zf.format(sec)}`
+    return result;
+  }
+
+  const forSkip = (sec) => {
+    if(videoRef.current) videoRef.current.currentTime += sec;
+    return;
+  }
+
+  const onKeyDown = (event) => {
+    event.preventDefault();
+    switch (event.key) {
+      case ' ':
+        togglePlay();
+        break;
+      case 'Escape':
+        toggleFullscreen();
+        break;
+      case 'ArrowLeft':
+        forSkip(-5);
+        break;
+      case 'ArrowRight':
+        forSkip(5);
+        break;
+      case 'ArrowUp':
+        setVolume(Math.min(1, volume + 0.1));
+        break;
+      case 'ArrowDown':
+        setVolume(Math.max(0, volume - 0.1));
+        break;
     }
   }
 
@@ -49,39 +124,61 @@ const Player = ({ video, state }) => {
     return () => window.removeEventListener('keydown', onKeyDown);
   });
 
+  useEffect(() => {
+    if(!videoRef.current) return;
+    videoRef.current.volume = volume;
+  }, [volume])
+
   return (
     <div id='player'>
-      { loadVideo && <Loading type='circle' size={5} /> }
+      { load && <Loading type='circle' size={5} /> }
       <video
+        className={state ? 'stream' : '_default'}
         ref={state ? videoRef : null}
+        src={state ? video : '/_media/videos/rendergirl.mp4'}
+        muted={state ? false : true}
+        loop={state ? false : true}
         onClick={togglePlay}
         onDoubleClick={toggleFullscreen}
-        onLoadStart={() => {
-          setLoadVideo(true)
-          setIsPlay(false);
-        }}
-        onLoadedData={() => {
-          setLoadVideo(false);
-          setIsPlay(true);
-        }}
-        className={state ? 'stream' : 'default'}
-        src={state ? video : '/_media/videos/rendergirl.mp4'}
+        onLoadStart={onLoadStart}
+        onLoadedData={onLoadedData}
+        onEnded={togglePlay}
+        onVolumeChange={() => setVolume(volume)}
+        onTimeUpdate={onTimeUpdate}
         type='video/mp4'
         autoPlay
-        loop={state ? false : true}
-        muted={state ? false : true}
         disablePictureInPicture
-        onEnded={togglePlay}
       />
       <div className='options'>
         <div className='timeline'></div>
         <div className='controls'>
           <button className='btn-play' onClick={togglePlay}>
-            { isPlay 
+            { status 
               ? <PauseSVG size={24} /> 
               : <PlaySVG size={24} /> 
             }
           </button>
+          <div className='volume-control'>
+            <button className='btn-volume' onClick={() => volume === 0 ? setVolume(1) : setVolume(0)}>
+              {volumeIconRender(volume)}
+            </button>
+            <div className='slider'>
+              <input 
+                id='volume-range'
+                type='range' 
+                min='0' 
+                max='1' 
+                step='any'
+                value={volume} 
+                onChange={(e) => setVolume(e.target.value)} 
+              />
+            </div>
+          </div>
+          <div className='duration-view'>
+            <div id='current'>{time.cur ? time.cur : '--:--'}</div>
+            •
+            <div id='total'>{time.tot ? time.tot : '--:--'}</div>
+          </div>
           <button className='btn-fullscreen' onClick={toggleFullscreen}>
             { isFull 
               ? <ArrowDRSVG size={30} /> 

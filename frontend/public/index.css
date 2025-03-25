@@ -336,6 +336,10 @@ nav {
 }
 
 #player .controls button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* */
   height: 30px;
   width: 30px;
   font-size: 1rem;
@@ -347,10 +351,87 @@ nav {
 
 #player .controls button:hover {
   opacity: 1;
+  align-content: center;
 }
 
 #player .controls .btn-fullscreen {
   right: 0;
+}
+
+#player .volume-control {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+}
+
+#player .volume-control .slider {
+  position: relative;
+  /* */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* */
+  width: 0;
+  height: 30px;
+  /* */
+  overflow: hidden;
+  transition: var(--transition-n1);
+}
+
+#player .volume-control #volume-range {
+  position: absolute;
+  left: 0;
+  /* */
+  width: 80px;
+  height: inherit;
+  /* */
+  appearance: none;
+}
+
+#player .volume-control #volume-range::-moz-range-progress,
+#player .volume-control #volume-range::-webkit-progress-value {
+  background: var(--accent);
+  height: 4px;
+}
+
+#player .volume-control #volume-range::-moz-range-track,
+#player .volume-control #volume-range::-webkit-progress-bar {
+  background: #31313196;
+}
+
+#player .volume-control #volume-range::-moz-range-thumb,
+#player .volume-control #volume-range::-webkit-progress-thumb {
+  background: var(--accent);
+  /* */
+  height: 14px;
+  width: 14px;
+  /* */
+  border-radius: 50%;
+  border: unset;
+  cursor: pointer;
+}
+
+#player .volume-control:hover .slider, 
+#player .volume-control:focus-within .slider {
+  width: 84px;
+}
+
+#player .duration-view {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  flex-grow: 1;
+}
+#player .duration-view #total,
+#player .duration-view #current,
+#player .duration-view #remain {
+  letter-spacing: 1.2px;
+  font-size: 13px;
+  cursor: default;
+}
+
+#player .duration-view #total {
+  opacity: .64;
 }
 
 /*

@@ -19,7 +19,7 @@
   "size": "{size_in_bytes}",
   "source": "http://localhost:3006/video/{unique_identifier}",
   "image": {
-    "size": 72278,
+    "size": "{size_in_bytes}",
     "source": "http://localhost:3006/image/{unique_identifier}"
   }
 }

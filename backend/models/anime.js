@@ -1,8 +1,20 @@
 const mongoose = require('mongoose');
 const Count = require('./__Count.js');
 
+const EpisodeSchema = new mongoose.Schema({
+  order: {
+    type: Number,
+    required: true
+  },
+  _file: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'File',
+    required: true
+  }
+});
+
 const AnimeSchema = new mongoose.Schema({
-  eId: {
+  animeId: {
     type: Number,
     unique: true
   },
@@ -20,7 +32,7 @@ const AnimeSchema = new mongoose.Schema({
     type: String,
     enum: ['not yet released', 'releasing', 'finished']
   },
-  episodes: Number,
+  episodes: [EpisodeSchema],
   duration: Number,
   date: {
     srt: Date,
@@ -29,10 +41,17 @@ const AnimeSchema = new mongoose.Schema({
   season: {
     type: String,
     enum: ['winter', 'spring', 'summer', 'fall'],
-    year: Number
+    default: 'unknown'
   },
-  popularity: Number,
-  favourites: Number,
+  seasonYear: Number,
+  popularity: {
+    type: Number,
+    default: 0
+  },
+  favourites: {
+    type: Number,
+    default: 0
+  },
   tags: [String],
   rating: Number,
   bannerImage: String,
@@ -42,28 +61,20 @@ const AnimeSchema = new mongoose.Schema({
   },
   origin: {
     type: String,
-    enum: ['japan', 'china', 'korea', 'other']
+    enum: ['japan', 'china', 'korea', 'other'],
+    default: 'unknown'
   },
-  synonym: [String],
-  store: {
-    video: String,
-    length: Number,
-    size: Number,
-    cover: {
-      large: String,
-      small: String
-    },
-  }
+  synonym: [String]
 });
 
-AnimeSchema.pre('save', async function (next) {
+AnimeSchema.pre('save', async (next) => {
   if (this.isNew) {
     const incr = await Count.findOneAndUpdate(
       { _id: 'animeId' },
       { $inc: { seq: 1 } },
       { new: true, upsert: true }
     );
-    this.eId = incr.seq;
+    this.animeId = incr.seq;
   }
   next();
 });

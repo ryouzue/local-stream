@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Count = require('./__Count.js');
 
 const VideoSchema = new mongoose.Schema({
-  eId: {
+  videoId: {
     type: Number,
     unique: true
   },
@@ -17,25 +17,20 @@ const VideoSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  length: {
-    time: Number,
-    size: Number
-  },
-  video: {
-    type: String,
-    required: true
-  },
-  cover: String
+  _file: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'File'
+  }
 });
 
-VideoSchema.pre('save', async function (next) {
+VideoSchema.pre('save', async (next) => {
   if (this.isNew) {
     const counter = await Count.findOneAndUpdate(
       { _id: 'videoId' },
       { $inc: { sequenceValue: 1 } },
       { new: true, upsert: true }
     );
-    this.eId = counter.seq;
+    this.videoId = counter.seq;
   }
   next();
 });

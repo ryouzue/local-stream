@@ -3,9 +3,7 @@ node_modules
 package-lock.json
 .backup
 
-_fonts
 frontend/public/_icons
-_media
 
 .vscode/*
 .env

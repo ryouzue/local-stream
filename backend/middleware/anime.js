@@ -1,5 +1,5 @@
 const { log, reply, addr, args } = require('../scripts/common.js');
-const { metadata, thumbnail } = require('../scripts/.route.js');
+const { thumbnail } = require('../scripts/.route.js');
 
 const fs = require('fs');
 const path = require('path');
@@ -7,13 +7,14 @@ const path = require('path');
 const { debug, media } = require('../conf.json');
 let dir;
 
+const ffmpeg = require('fluent-ffmpeg');
+
 const anime = {
   path: (req, res, next) => {
-    if(debug) log(5, 'md.path');
+    if (debug) log(5, 'md.path');
     try {
-      const filter = req.baseUrl.replace(/^\/+/g, '');
-      dir = args('--path', path.join(media, filter));
-      return next();
+      /* new logic */
+      next();
     } catch (err) {
       log(3, '»', err.message);
       return reply(res, 500, { error: 'md.path', message: err.message });
@@ -21,31 +22,74 @@ const anime = {
   },
 
   metadata: async (req, res, next) => {
-    if(debug) log(5, 'md.metadata');
+    if (debug) log(5, 'md.metadata');
     try {
-      fs.readdir(dir,
-        { withFileTypes: true },
-        async (err, files) => {
-          const names = files
-            .filter(file => file.isFile())
-            .map(file => file.name);
-
-          const result = {
-            amount: names.length,
-            files: await Promise.all(
-              metadata(addr(req), dir, names)
-            )
-          }
-
-          req.metadata = result;
-          return next();
-        }
-      )
+      /* new logic */
+      next();
     } catch (err) {
       log(3, '»', err.message);
-      return reply(res, 500, { error: 'md.metadata', message: err.message });
+      return reply(res, 500, { 
+        error: 'md.metadata', 
+        message: err.message 
+      });
+    }
+  },
+
+  types: async (req, res, next) => {
+    if (debug) log(5, 'md.query.type');
+    try {
+      /* new logic */
+      next();
+    } catch (err) {
+      log(3, '»', err.message);
+      return reply(res, 500, { 
+        error: 'md.query.types', 
+        message: err.message 
+      });
+    }
+  },
+
+  index: async (req, res, next) => {
+    if (debug) log(5, 'md.query.index');
+    try {
+      /* new logic */
+      await music.types(req, res, next);
+    } catch (err) {
+      log(3, '»', err.message);
+      return reply(res, 500, { 
+        error: 'md.query.index', 
+        message: err.message 
+      });
+    }
+  },
+
+  name: async (req, res, next) => {
+    if (debug) log(5, 'md.query.name');
+    try {
+      /* new logic */
+      await music.types(req, res, next);
+    } catch (err) {
+      log(3, '»', err.message);
+      return reply(res, 500, { 
+        error: 'md.query.name', 
+        message: err.message 
+      });
+    }
+  },
+
+  query: async (req, res, next) => {
+    if (debug) log(5, 'md.query');
+    try {
+      /* new logic */
+      next();
+    } catch (err) {
+      log(3, '»', err.message);
+      return reply(res, 500, { 
+        error: 'md.query', 
+        message: err.message 
+      });
     }
   }
 }
 
-module.exports = { anime };
+module.exports = { music };

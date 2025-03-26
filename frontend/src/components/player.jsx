@@ -36,39 +36,34 @@ const Player = ({ video, state }) => {
   }
 
   const onLoadStart = () => {
-    if(videoRef.current) {
-      setTime({});
-      console.log('onLoadStart', time);
-    }
-
+    setTime({});
     setLoad(true);
-    setStatus(false)
+    setStatus(false);
   }
 
   const onLoadedData = () => {
-    setLoad(false);
-    setStatus(true);
-  }
-
-  const onLoadedMetadata = () => {
+     /* To be gone after rewriting backend soon */
     if(videoRef.current) {
       const tot = videoRef.current?.duration;
       isFinite(tot) && setTime({ 
         tot: forTime(tot) 
       });
     }
+
+    setLoad(false);
+    setStatus(true);
   }
 
   const onTimeUpdate = () => {
     if(videoRef.current) {
-      const tot = videoRef.current.duration;
+      const tot = videoRef.current.duration; /* To be gone soon */
       const cur = videoRef.current.currentTime;
       const rem = tot - cur;
-      setTime(prev => ({
-        ...prev,
+      setTime({
+        tot: forTime(tot), /* To also be gone soon */
         cur: forTime(cur),
         rem: forTime(rem)
-      }));
+      });
     }
   }
 
@@ -106,10 +101,12 @@ const Player = ({ video, state }) => {
         forSkip(5);
         break;
       case 'ArrowUp':
-        setVolume(Math.min(1, volume + 0.1));
+        console.log(volume);
+        setVolume(Math.min(1, volume + .1));
         break;
       case 'ArrowDown':
-        setVolume(Math.max(0, volume - 0.1));
+        console.log(volume);
+        setVolume(Math.max(0, volume - .1));
         break;
     }
   }
@@ -121,6 +118,7 @@ const Player = ({ video, state }) => {
 
   useEffect(() => {
     if(!videoRef.current) return;
+    console.log(volume);
     videoRef.current.volume = volume;
   }, [volume])
 
@@ -137,9 +135,7 @@ const Player = ({ video, state }) => {
         onDoubleClick={toggleFullscreen}
         onLoadStart={onLoadStart}
         onLoadedData={onLoadedData}
-        onLoadedMetadata={onLoadedMetadata}
         onEnded={togglePlay}
-        onVolumeChange={() => setVolume(volume)}
         onTimeUpdate={onTimeUpdate}
         type='video/mp4'
         autoPlay
@@ -165,8 +161,8 @@ const Player = ({ video, state }) => {
                 min='0' 
                 max='1' 
                 step='any'
-                value={volume} 
-                onChange={(e) => setVolume(e.target.value)} 
+                value={volume}
+                onChange={(event) => setVolume(parseFloat(event.target.value))}
               />
             </div>
           </div>

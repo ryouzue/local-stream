@@ -9,10 +9,10 @@ const path = require('path');
 
 // const ffmpeg = require('fluent-ffmpeg');
 
-const anime = {
+const video = {
   HelloWorld: () => {
     console.log('Hello World!');
   }
 }
 
-module.exports = { anime };
+module.exports = { music };

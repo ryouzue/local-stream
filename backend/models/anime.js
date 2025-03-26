@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const Count = require('./__count.js');
+const Count = require('./__Count.js');
 
-const Schema = new mongoose.Schema({
+const AnimeSchema = new mongoose.Schema({
   eId: {
     type: Number,
     unique: true
@@ -35,11 +35,6 @@ const Schema = new mongoose.Schema({
   favourites: Number,
   tags: [String],
   rating: Number,
-  coverImage: {
-    large: String,
-    medium: String,
-    small: String
-  },
   bannerImage: String,
   isAdult: {
     type: Boolean,
@@ -49,10 +44,19 @@ const Schema = new mongoose.Schema({
     type: String,
     enum: ['japan', 'china', 'korea', 'other']
   },
-  synonym: [String]
+  synonym: [String],
+  store: {
+    video: String,
+    length: Number,
+    size: Number,
+    cover: {
+      large: String,
+      small: String
+    },
+  }
 });
 
-Schema.pre('save', async function (next) {
+AnimeSchema.pre('save', async function (next) {
   if (this.isNew) {
     const incr = await Count.findOneAndUpdate(
       { _id: 'animeId' },
@@ -64,4 +68,4 @@ Schema.pre('save', async function (next) {
   next();
 });
 
-module.exports = mongoose.model('Anime', Schema);
+module.exports = mongoose.model('Anime', AnimeSchema);

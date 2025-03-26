@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const Count = require('./__count.js');
+const Count = require('./__Count.js');
 
-const Schema = new mongoose.Schema({
+const VideoSchema = new mongoose.Schema({
   eId: {
     type: Number,
     unique: true
@@ -28,10 +28,10 @@ const Schema = new mongoose.Schema({
   cover: String
 });
 
-Schema.pre('save', async function (next) {
+VideoSchema.pre('save', async function (next) {
   if (this.isNew) {
     const counter = await Count.findOneAndUpdate(
-      { _id: 'musicId' },
+      { _id: 'videoId' },
       { $inc: { sequenceValue: 1 } },
       { new: true, upsert: true }
     );
@@ -40,4 +40,4 @@ Schema.pre('save', async function (next) {
   next();
 });
 
-module.exports = mongoose.model('Music', Schema);
+module.exports = mongoose.model('Video', VideoSchema);

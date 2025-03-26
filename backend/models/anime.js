@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Count = require('./__Count.js');
 
 const EpisodeSchema = new mongoose.Schema({
-  order: {
+  index: {
     type: Number,
     required: true
   },

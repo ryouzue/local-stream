@@ -5,7 +5,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const { log } = require('./scripts/common.js');
-const routes = require('./routes/.route.js');
+const routes = require('./routes/default.js');
 
 /* Use handlers */
 app.use(cors());

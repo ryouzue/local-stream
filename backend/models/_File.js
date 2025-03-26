@@ -15,12 +15,11 @@ const FileSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['video', 'audio', 'image'],
-    default: 'unknown'
+    enum: ['video', 'audio', 'image']
   },
   format: {
     type: String,
-    default: 'unknown'
+    enum: ['mp4', 'mkv', 'webm']
   }
 });
 

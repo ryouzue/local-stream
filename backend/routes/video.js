@@ -7,7 +7,7 @@ const { log, reply } = require('../scripts/common.js');
 const Video = require('../models/video.js');
 
 router.post('/', async (req, res) => {
-  if (debug) return log(4, 'POST - routes.video');
+  if (debug) log(4, 'POST - routes.video');
   try {
     const video = await Video.create(req.body);
     res.status(201).json(video);
@@ -18,7 +18,7 @@ router.post('/', async (req, res) => {
 })
 
 router.get('/', async(req, res) => {
-  if (debug) return log(4, 'GET - routes.video');
+  if (debug) log(4, 'GET - routes.video');
   try {
     const video = await Video.find();
     if(!video) return reply(res, 400, 'No videos available');
@@ -30,7 +30,7 @@ router.get('/', async(req, res) => {
 })
 
 router.get('/:id', async(req, res) => {
-  if (debug) return log(4, 'GET - routes.video');
+  if (debug) log(4, 'GET - routes.video');
   try {
     const { id } = req.params;
     if(!id) return reply(res, 400, 'Bad request params');
@@ -49,7 +49,7 @@ router.get('/:id', async(req, res) => {
 })
 
 router.put('/:id', async(req, res) => {
-  if (debug) return log(4, 'PUT - routes.video');
+  if (debug) log(4, 'PUT - routes.video');
   try {
     const { id } = req.params;
     if(!id) return reply(res, 400, 'Bad request params');
@@ -65,7 +65,7 @@ router.put('/:id', async(req, res) => {
 })
 
 router.patch('/:id', async(req, res) => {
-  if (debug) return log(4, 'PATCH - routes.video');
+  if (debug) log(4, 'PATCH - routes.video');
   try {
     const { id } = req.params;
     if(!id) return reply(res, 400, 'Bad request params');
@@ -81,7 +81,7 @@ router.patch('/:id', async(req, res) => {
 })
 
 router.delete('/:id', async(req, res) => {
-  if (debug) return log(4, 'DELETE - routes.video');
+  if (debug) log(4, 'DELETE - routes.video');
   try {
     const { id } = req.params;
     if(!id) return reply(res, 400, 'Bad request params');

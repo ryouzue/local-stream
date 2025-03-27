@@ -1,18 +1,12 @@
 const mongoose = require('mongoose');
 
-const FileSchema = new mongoose.Schema({
+const FileMetaSchema = new mongoose.Schema({
   source: {
     type: String,
     required: true
   }, 
-  length: {
-    type: Number,
-    default: 0
-  },
-  size: {
-    type: Number,
-    required: true
-  },
+  length: Number,
+  size: Number,
   type: {
     type: String,
     enum: ['video', 'audio', 'image']
@@ -23,4 +17,4 @@ const FileSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('File', FileSchema);
+module.exports = mongoose.model('FileMeta', FileMetaSchema);

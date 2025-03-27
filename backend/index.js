@@ -1,9 +1,13 @@
 const express = require('express');
 const app = express();
 
+const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config();
 
+require('dotenv').config();
+const { port, addr, mongo } = process.env;
+
+const { magenta, grey } = require('colors');
 const { log } = require('./scripts/common.js');
 const routes = require('./routes/default.js');
 
@@ -20,8 +24,16 @@ app.get('*', (req, res) => {
   res.status(404).send({});
 });
 
-/* Listeners */
-const { port, addr } = process.env;
-app.listen(port, addr, () => {
-  log(1, `Listening on http://${addr}:${port}`);
-});
+/* ...REST */
+
+try {
+  mongoose.connect(mongo)
+  .then(() => log(1, `Connected to MongoDB at ${grey(mongo)}`))
+  .catch(err => log(2, `Failed to connect to MongoDB at ${grey(mongo)}:`, grey(err.message)));
+
+  app.listen(port, addr, () => {
+    log(1, 'Listening on', grey(`http://${addr}:${port}`));
+  });
+} catch(err) {
+  log(4, 'Failed to start application', err.message);
+}

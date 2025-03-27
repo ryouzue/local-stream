@@ -1,20 +1,8 @@
 const mongoose = require('mongoose');
 const Count = require('./__Count.js');
 
-const EpisodeSchema = new mongoose.Schema({
-  index: {
-    type: Number,
-    required: true
-  },
-  _file: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'File',
-    required: true
-  }
-});
-
 const AnimeSchema = new mongoose.Schema({
-  animeId: {
+  id: {
     type: Number,
     unique: true
   },
@@ -32,7 +20,17 @@ const AnimeSchema = new mongoose.Schema({
     type: String,
     enum: ['not yet released', 'releasing', 'finished']
   },
-  episodes: [EpisodeSchema],
+  episodes: [{
+    index: {
+      type: Number,
+      required: true
+    },
+    _file: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'FileMeta',
+      required: true
+    }
+  }],
   duration: Number,
   date: {
     srt: Date,
@@ -70,11 +68,11 @@ const AnimeSchema = new mongoose.Schema({
 AnimeSchema.pre('save', async (next) => {
   if (this.isNew) {
     const incr = await Count.findOneAndUpdate(
-      { _id: 'animeId' },
+      { id: 'id' },
       { $inc: { seq: 1 } },
       { new: true, upsert: true }
     );
-    this.animeId = incr.seq;
+    this.id = incr.seq;
   }
   next();
 });

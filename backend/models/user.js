@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Count = require('./__Count.js');
  
 const UserSchema = new mongoose.Schema({
-  userId: {
+  id: {
     type: Number,
     unique: true
   },
@@ -27,14 +27,16 @@ const UserSchema = new mongoose.Schema({
       planning: [String],
       complete: [String],
     },
-    progress: [{
-      animeId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Anime'
-      },
-      time: Number,
-      episode: Number
-    }]
+    progress: [
+      {
+        animeId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Anime'
+        },
+        time: Number,
+        episode: Number
+      }
+    ]
   },
   video: {
     progress: [{
@@ -47,11 +49,11 @@ const UserSchema = new mongoose.Schema({
 UserSchema.pre('save', async (next) => {
   if (this.isNew) {
     const counter = await Count.findOneAndUpdate(
-      { _id: 'userId' },
+      { id: 'id' },
       { $inc: { sequenceValue: 1 } },
       { new: true, upsert: true }
     );
-    this.userId = counter.seq;
+    this.id = counter.seq;
   }
   next();
 })

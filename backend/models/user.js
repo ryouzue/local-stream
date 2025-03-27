@@ -3,6 +3,38 @@ import Count from './_count.js';
 
 import { argon2id as argon } from 'argon2';
  
+const AnimeProgSchema = new Schema({
+  favorite: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Anime'
+  }],
+  status: {
+    watching: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Anime'
+    }],
+    planning: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Anime'
+    }],
+    complete: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Anime'
+    }],
+  }
+});
+
+const VideoProgSchema = new Schema({
+  favorite: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Video'
+  }],
+  timeline: [{
+    videoId: Number,
+    time: Number
+  }]
+})
+
 const UserSchema = new Schema({
   id: {
     type: Number,
@@ -20,31 +52,9 @@ const UserSchema = new Schema({
     enum: ['admin', 'user'],
     default: 'user'
   },
-  anime: {
-    favorite: [{
-      type: Schema.types.objectId,
-      ref: 'Anime'
-    }],
-    status: {
-      watching: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Anime'
-      }],
-      planning: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Anime'
-      }],
-      complete: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Anime'
-      }],
-    },
-  },
-  video: {
-    progress: [{
-      videoId: Number,
-      time: Number
-    }]
+  progress: {
+    anime: [AnimeProgSchema],
+    video: [VideoProgSchema]
   }
 })
 

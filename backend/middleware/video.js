@@ -4,15 +4,10 @@ import { thumbnail } from '../scripts/.route.js';
 import fs from 'fs';
 import path from 'path';
 
-// import { debug, media } = require('../conf.json');
-// let dir;
-
-// import ffmpeg = require('fluent-ffmpeg');
-
 const video = {
-  HelloWorld: () => {
+  what: () => {
     console.log('Hello World!');
   }
 }
 
-export default { video };
+export default video;

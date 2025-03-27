@@ -1,9 +1,15 @@
 import { Schema, model } from 'mongoose';
 
 const PostSchema = new Schema({
+  id: {
+    type: Number,
+    required: true,
+    unique: true
+  },
   title: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
   description: {
     type: String,
@@ -11,7 +17,8 @@ const PostSchema = new Schema({
   },
   author: {
     type: Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
+    required: true
   },
   coverImage: String,
 });

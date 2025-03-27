@@ -2,10 +2,6 @@ import { Schema, model } from 'mongoose';
 import Count from './_count.js'
 
 const VideoSchema = new Schema({
-  publisher: {
-    type: Schema.Types.ObjectId,
-    ref: 'User'
-  },
   id: {
     type: Number,
     unique: true
@@ -16,6 +12,10 @@ const VideoSchema = new Schema({
     default: 'None'
   },
   description: String,
+  author: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
   type: {
     type: String,
     enum: ['static', 'stream'],

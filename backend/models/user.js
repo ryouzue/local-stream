@@ -6,6 +6,7 @@ import { argon2id as argon } from 'argon2';
 const UserSchema = new Schema({
   id: {
     type: Number,
+    required: true,
     unique: true
   },
   username: {

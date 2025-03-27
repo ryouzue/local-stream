@@ -23,7 +23,7 @@ router.get('/', async(req, res) => {
   if (debug) log(4, 'GET - routes.post');
   try {
     const post = await Post.find();
-    if(!post) return reply(res, 400, 'No videos available');
+    if(!post) return reply(res, 400, 'No posts available');
     res.status(200).json(post);
   } catch(err) {
     log(2, 'GET - routes.post »', err.message);

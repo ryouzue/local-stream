@@ -12,22 +12,9 @@ I'm working on this based on personal interest, do not expect a lot.
 > Create an entry in the database for non saved content in specific collection/s
 2. **UPDATED**: Improve data entries on the backend
 
-<details>
-  <summary>New - mongo Anime schema</summary>
-
-```js
-
-```
-</details>
-<details>
-  <summary>New - mongo Video schema</summary>
-  
-```js
-
-```
-</details>
-
-<br>
+### Mongo Models
+1 [Anime](./backend/models/anime.js)
+2 [Video](./backend/models/video.js)
 
 ## Wish to support me and this project?
 If you have any ideas to help me out, dm on discord or create an issue letting me know!

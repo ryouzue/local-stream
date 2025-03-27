@@ -1,9 +1,8 @@
-const ffmpeg = require('fluent-ffmpeg');
+import ffmpeg from 'fluent-ffmpeg';
+import fs from 'fs';
+import path from 'path';
 
-const fs = require('fs');
-const path = require('path');
-
-const { log } = require('../common.js');
+import { log } from '../common.js';
 
 const thumbnail = (dir, name, dest) => {
   try {

@@ -9,10 +9,10 @@ import path from 'path';
 
 // import ffmpeg = require('fluent-ffmpeg');
 
-const video = {
+const store = {
   HelloWorld: () => {
     console.log('Hello World!');
   }
 }
 
-export default { video };
+export default { store };

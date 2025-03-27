@@ -1,4 +1,12 @@
 {
+  "name": "local-stream-backend",
+  "private": true,
+  "version": "0.1.5",
+  "type": "module",
+  "scripts": {
+    "start": "node .",
+    "dev": "nodemon --no-warnings ."
+  },
   "dependencies": {
     "argon2": "^0.41.1",
     "axios": "^1.8.3",

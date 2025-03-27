@@ -1,4 +1,4 @@
-const args = (field, def) => {
+export default function args(field, def) {
   try {
     const args = process.argv.slice(2);
     const index = args.indexOf(field);
@@ -19,5 +19,3 @@ const args = (field, def) => {
     return;
   }
 }
-
-module.exports = { args };

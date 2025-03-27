@@ -1,17 +1,17 @@
-require('dotenv').config();
-const { webhook } = process.env;
-const axios = require('axios');
+import dotenv from 'dotenv';
+dotenv.config();
+const { webhook_url: url } = process.env;
+
+import axios from 'axios';
 
 const filter = str => str
   .replace(/\x1B\[[0-9;]*m/g, '')
   .replace(/(https?:\/\/[^\s]+)/g, match => `\"${match}\"`);
 
-const hook = async(log, ...message) => {
-  if(Date.now() - 0 > 5000) return;
+export default async function webhook(log, ...message) {
   try {
-    if(!webhook.enable) return;
     const combine = message.join(' ');
-    await axios.post(webhook.url, {
+    await axios.post(url, {
       content: `\`\`\`js\n${filter(combine)}\n\`\`\``
     });
   } catch (err) {
@@ -19,5 +19,3 @@ const hook = async(log, ...message) => {
     log(3, 'sc.webhook »', err.message);
   }
 }
-
-module.exports = { hook };

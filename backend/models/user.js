@@ -1,7 +1,9 @@
-const mongoose = require('mongoose');
-const Count = require('./__Count.js');
+import { Schema, model } from 'mongoose';
+import Count from './_count.js';
+
+import { argon2id as argon } from 'argon2';
  
-const UserSchema = new mongoose.Schema({
+const UserSchema = new Schema({
   id: {
     type: Number,
     unique: true
@@ -11,32 +13,31 @@ const UserSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
-  password: {
-    type: String,
-    required: true
-  },
+  password: String,
   role: {
     type: String,
     enum: ['admin', 'user'],
     default: 'user'
   },
   anime: {
-    favorite: [String],
+    favorite: [{
+      type: Schema.types.objectId,
+      ref: 'Anime'
+    }],
     status: {
-      watching: [String],
-      planning: [String],
-      complete: [String],
+      watching: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Anime'
+      }],
+      planning: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Anime'
+      }],
+      complete: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Anime'
+      }],
     },
-    progress: [
-      {
-        animeId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'Anime'
-        },
-        time: Number,
-        episode: Number
-      }
-    ]
   },
   video: {
     progress: [{
@@ -59,8 +60,8 @@ UserSchema.pre('save', async (next) => {
 })
 
 UserSchema.pre('save', async (next) => {
-  if (this.isModified('password')) this.password = await argon2.hash(this.password);
+  if (this.isModified('password')) this.password = await argon.hash(this.password);
   next();
 })
 
-module.exports = mongoose.model('User', UserSchema);
+export default model('User', UserSchema);

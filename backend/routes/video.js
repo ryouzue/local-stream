@@ -1,10 +1,12 @@
-const { Router } = require('express');
+import { Router } from 'express';
 const router = Router();
 
-const { debug } = require('../conf.json');
-const { log, reply } = require('../scripts/common.js');
+import config from '../conf.json' assert { type: 'json' };
+const { debug } = config;
 
-const Video = require('../models/video.js');
+import { log, reply } from '../scripts/common.js';
+
+import Video from '../models/video.js';
 
 router.post('/', async (req, res) => {
   if (debug) log(4, 'POST - routes.video');
@@ -96,4 +98,4 @@ router.delete('/:id', async(req, res) => {
   }
 })
 
-module.exports = router;
+export default router;

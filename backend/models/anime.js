@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const Count = require('./__Count.js');
+import { Schema, model } from 'mongoose';
+import Count from './_count.js';
 
-const AnimeSchema = new mongoose.Schema({
+const AnimeSchema = new Schema({
   id: {
     type: Number,
     unique: true
@@ -18,17 +18,16 @@ const AnimeSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['not yet released', 'releasing', 'finished']
+    enum: ['finished', 'releasing', 'not yet released', 'cancelled']
   },
   episodes: [{
     index: {
       type: Number,
       required: true
     },
-    _file: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'FileMeta',
-      required: true
+    _store: {
+      type: Schema.Types.ObjectId,
+      ref: 'Store'
     }
   }],
   duration: Number,
@@ -38,8 +37,7 @@ const AnimeSchema = new mongoose.Schema({
   },
   season: {
     type: String,
-    enum: ['winter', 'spring', 'summer', 'fall'],
-    default: 'unknown'
+    enum: ['winter', 'spring', 'summer', 'fall']
   },
   seasonYear: Number,
   popularity: {
@@ -59,8 +57,7 @@ const AnimeSchema = new mongoose.Schema({
   },
   origin: {
     type: String,
-    enum: ['japan', 'china', 'korea', 'other'],
-    default: 'unknown'
+    enum: ['japan', 'south korea', 'china', 'taiwan']
   },
   synonym: [String]
 });
@@ -77,4 +74,4 @@ AnimeSchema.pre('save', async (next) => {
   next();
 });
 
-module.exports = mongoose.model('Anime', AnimeSchema);
+export default model('Anime', AnimeSchema);

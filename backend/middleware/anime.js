@@ -1,8 +1,8 @@
-const { log, reply, addr, args } = require('../scripts/common.js');
-const { thumbnail } = require('../scripts/.route.js');
+import { log, reply, addr, args } from '../scripts/common.js';
+import { thumbnail } from '../scripts/.route.js';
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 // const { debug, media } = require('../conf.json');
 // let dir;
@@ -15,4 +15,4 @@ const anime = {
   }
 }
 
-module.exports = { anime };
+export default { anime };

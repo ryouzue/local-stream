@@ -1,7 +1,11 @@
-const mongoose = require('mongoose');
-const Count = require('./__Count.js');
+import { Schema, model } from 'mongoose';
+import Count from './_count.js'
 
-const VideoSchema = new mongoose.Schema({
+const VideoSchema = new Schema({
+  publisher: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
   id: {
     type: Number,
     unique: true
@@ -15,16 +19,15 @@ const VideoSchema = new mongoose.Schema({
   type: {
     type: String,
     enum: ['static', 'stream'],
-    default: 'static'
+    required: true
   },
   isAdult: {
     type: Boolean,
     default: false
   },
-  _file: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'FileMeta',
-    required: true
+  _Store: {
+    type: Schema.Types.ObjectId,
+    ref: 'Store'
   }
 });
 
@@ -40,4 +43,4 @@ VideoSchema.pre('save', async (next) => {
   next();
 });
 
-module.exports = mongoose.model('Video', VideoSchema);
+export default model('Video', VideoSchema);

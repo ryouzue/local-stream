@@ -1,15 +1,18 @@
-const express = require('express');
+import express from 'express';
 const app = express();
 
-const mongoose = require('mongoose');
-const cors = require('cors');
+import mongoose from 'mongoose';
+import cors from 'cors';
 
-require('dotenv').config();
-const { port, addr, mongo } = process.env;
+import dotenv from 'dotenv';
+dotenv.config();
+const { port, addr, mongodb_url: mongo } = process.env;
 
-const { magenta, grey } = require('colors');
-const { log } = require('./scripts/common.js');
-const routes = require('./routes/default.js');
+import colors from 'colors';
+const { magenta, grey } = colors;
+
+import { log } from './scripts/common.js';
+import routes from './routes/_export.js';
 
 /* Use handlers */
 app.use(cors());

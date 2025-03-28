@@ -1,23 +1,32 @@
 import { Router } from 'express';
-const router = Router();
-
-import config from '../../conf.json' assert { type: 'json' };
-const { debug } = config;
+import { validationResult as validate, checkSchema as verify, matchedData as match } from 'express-validator';
 
 import { log, reply } from '../utils/common.js';
+import config from '../../conf.json' assert { type: 'json' };
 
 import Post from '../models/post.js';
+import PostSchema from '../schemas/valid.post.js';
 
-router.post('/', async (req, res) => {
-  if (debug) log(4, 'POST - routes.post');
-  try {
-    const post = await Post.create(req.body);
-    res.status(201).json(post);
-  } catch(err) {
-    log(2, 'POST - routes.post »', err.message);
-    reply(res, 400, err.message);
+const { debug } = config;
+const router = Router();
+
+router.post('/', 
+  verify(PostSchema), 
+  async (req, res) => {
+    if (debug) log(4, 'POST - routes.post');
+    
+    const result = validate(req);
+    if (!result.isEmpty()) return reply(res, 400, result.array());
+    try {
+      const data = match(req);
+      const post = await Post.create(data);
+      res.status(201).json(post);
+    } catch(err) {
+      log(2, 'POST - routes.post »', err.message);
+      reply(res, 400, err.message);
+    }
   }
-})
+)
 
 router.get('/', async(req, res) => {
   if (debug) log(4, 'GET - routes.post');

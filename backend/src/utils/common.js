@@ -49,5 +49,6 @@ const log = async(type, ...rest) => {
 
 export {
   time, cap, addr, 
-  log, reply, args
+  log, reply, args,
+  colors as color
 }

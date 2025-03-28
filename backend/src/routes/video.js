@@ -1,12 +1,14 @@
 import { Router } from 'express';
-const router = Router();
-
-import config from '../../conf.json' assert { type: 'json' };
-const { debug } = config;
+import { query, validationResult as validate, checkSchema as verify } from 'express-validator';
 
 import { log, reply } from '../utils/common.js';
+import config from '../../conf.json' assert { type: 'json' };
 
 import Video from '../models/video.js';
+import VideoSchema from '../schemas/valid.video.js';
+
+const { debug } = config;
+const router = Router();
 
 router.post('/', async (req, res) => {
   if (debug) log(4, 'POST - routes.video');

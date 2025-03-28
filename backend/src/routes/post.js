@@ -7,6 +7,8 @@ import config from '../../conf.json' assert { type: 'json' };
 import Post from '../models/post.js';
 import PostSchema from '../schemas/valid.post.js';
 
+import { mongoErrHandler } from '../handlers/mongoErrHandler.js';
+
 const { debug } = config;
 const router = Router();
 
@@ -14,13 +16,14 @@ router.post('/',
   verify(PostSchema), 
   async (req, res) => {
     if (debug) log(4, 'POST - routes.post');
-    
+
     const result = validate(req);
-    if (!result.isEmpty()) return res.status(400).send({ errors: result.array() });
+    if (!result.isEmpty()) return res.status(400).json(result.array());
 
     try {
       const data = match(req);
-      const post = await Post.create(data);
+      const post = await Post.create(data)
+        .catch(err => mongoErrHandler(err, res));
       res.status(201).json(post);
     } catch(err) {
       log(2, 'POST - routes.post »', err.message);

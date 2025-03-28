@@ -1,9 +1,10 @@
-import express, { urlencoded } from 'express';
+import express, { json, urlencoded } from 'express';
 import { reply } from './utils/common.js';
 
 const app = express();
 
 /* Use handlers */
+app.use(json());
 app.use(urlencoded({ extended: true }));
 
 /* Import routes */

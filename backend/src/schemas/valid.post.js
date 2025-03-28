@@ -8,7 +8,7 @@ export default {
       errorMessage: "Length: (min 6 - max 46)"
     },
     notEmpty: {
-      errorMessage: "Empty field"
+      errorMessage: "Empty value"
     },
     isString: {
       errorMessage: "Not a string"
@@ -22,10 +22,26 @@ export default {
       errorMessage: "Length: (max 2048)"
     },
     notEmpty: {
-      errorMessage: "Empty field"
+      errorMessage: "Empty value"
     },
     isString: {
       errorMessage: "Not a string"
     }
-  }
+  },
+  author: {
+    isLength: {
+      options: {
+        min: 3,
+        max: 24
+      },
+      errorMessage: "Length: (min 3 - max 24)"
+    },
+    notEmpty: {
+      errorMessage: "Empty value"
+    },
+    isString: {
+      errorMessage: "Not a string"
+    }
+  },
+  coverImage: String
 }

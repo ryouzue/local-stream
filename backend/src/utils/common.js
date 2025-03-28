@@ -31,7 +31,7 @@ const cap = str => str.replace(/(?:^|\s|-|:)(?![’'])(\w)/g, match => match.toU
 const reply = (res, state, ...rest) => {
   try { 
     isReply
-      ? res.status(state).send({ ...rest }) 
+      ? res.status(state).send(rest.length === 1 && typeof rest[0] === 'object' ? rest[0] : { message: rest }) 
       : null;
   } catch(err) {
     return log(3, 'sc.reply »', err.message);

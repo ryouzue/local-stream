@@ -13,7 +13,7 @@ const logtype = {
   5: gray('PASS')
 }
 
-import config from '../conf.json' assert { type: 'json' };
+import config from '../../conf.json' assert { type: 'json' };
 const { 
   reply: isReply, 
   webhook: { 

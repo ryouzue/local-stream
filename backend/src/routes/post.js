@@ -1,10 +1,10 @@
 import { Router } from 'express';
 const router = Router();
 
-import config from '../conf.json' assert { type: 'json' };
+import config from '../../conf.json' assert { type: 'json' };
 const { debug } = config;
 
-import { log, reply } from '../scripts/common.js';
+import { log, reply } from '../utils/common.js';
 
 import Post from '../models/post.js';
 

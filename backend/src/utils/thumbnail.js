@@ -2,7 +2,7 @@ import ffmpeg from 'fluent-ffmpeg';
 import fs from 'fs';
 import path from 'path';
 
-import { log } from '../common.js';
+import { log } from './common.js';
 
 const thumbnail = (dir, name, dest) => {
   try {

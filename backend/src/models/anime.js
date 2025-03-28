@@ -24,9 +24,10 @@ const AnimeSchema = new Schema({
   episodes: [{
     index: {
       type: Number,
-      required: true
+      required: true,
+      unique: true
     },
-    _store: {
+    _Store: {
       type: Schema.Types.ObjectId,
       ref: 'Store'
     }

@@ -16,7 +16,8 @@ router.post('/',
     if (debug) log(4, 'POST - routes.post');
     
     const result = validate(req);
-    if (!result.isEmpty()) return reply(res, 400, result.array());
+    if (!result.isEmpty()) return res.status(400).send({ errors: result.array() });
+
     try {
       const data = match(req);
       const post = await Post.create(data);

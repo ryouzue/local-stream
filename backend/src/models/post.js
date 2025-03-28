@@ -8,9 +8,9 @@ const PostSchema = new Schema({
   },
   title: {
     type: String,
-    unique: true,
     required: true,
-    trim: true
+    trim: true,
+    unique: true
   },
   description: {
     type: String,
@@ -24,6 +24,15 @@ const PostSchema = new Schema({
   },
   coverImage: String,
 });
+
+/* Prevent case sensitive - for test
+PostSchema.index(
+  { title: 1 }, 
+  { unique: true, collation: 
+    { locale: 'en', strength: 2 } 
+  }
+);
+*/
 
 PostSchema.pre('save', async function (next) {
   if (this.isNew) {

@@ -7,11 +7,18 @@ import config from '../../conf.json' assert { type: 'json' };
 import User from '../models/user.js';
 import UserSchema from '../schemas/valid.user.js';
 
+import mongoErrHandler from '../handlers/mongoErrHandler.js';
+import { search, separate, compare } from '../middleware/query.js';
+import { verify } from '../middleware/schema.js';
+
 const { debug } = config;
 const router = Router();
 
 router.post('/', 
   verify(UserSchema),
+  search(User),
+  separate('_id', 'id', '__v'),
+  compare,
   async (req, res) => {
     if (debug) log(4, 'POST - routes.user');
 
@@ -24,7 +31,7 @@ router.post('/',
         .catch(err => mongoErrHandler(err, res));
       res.status(201).json(user);
     } catch(err) {
-      log(2, 'POST - routes.post »', err.message);
+      log(2, 'POST - routes.user »', err.message);
       reply(res, 400, err.message);
     }
   }

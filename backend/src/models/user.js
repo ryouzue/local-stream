@@ -13,14 +13,18 @@ const AnimeProgSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: 'Anime'
     }],
-    planning: [{
+    planned: [{
       type: Schema.Types.ObjectId,
       ref: 'Anime'
     }],
-    complete: [{
+    completed: [{
       type: Schema.Types.ObjectId,
       ref: 'Anime'
     }],
+    dropped: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Anime'
+    }]
   }
 });
 

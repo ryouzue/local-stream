@@ -29,4 +29,4 @@ const StoreSchema = new Schema({
   }
 });
 
-export default model('Store', StoreSchema);
+export default model('_Store', StoreSchema);

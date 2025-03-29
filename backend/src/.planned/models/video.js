@@ -32,13 +32,14 @@ const VideoSchema = new Schema({
   }
 });
 
-VideoSchema.pre('save', async (next) => {
+VideoSchema.pre('save', async function (next) {
   if (this.isNew) {
     const counter = await Count.findOneAndUpdate(
-      { id: 'id' },
-      { $inc: { sequenceValue: 1 } },
+      { name: 'Video' },
+      { $inc: { seq: 1 } },
       { new: true, upsert: true }
     );
+
     this.id = counter.seq;
   }
   next();

@@ -4,7 +4,6 @@ import Count from './_count.js';
 const AnimeSchema = new Schema({
   id: {
     type: Number,
-    required: true,
     unique: true
   },
   title: {

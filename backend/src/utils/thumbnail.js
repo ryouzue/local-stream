@@ -4,7 +4,7 @@ import path from 'path';
 
 import { log } from './common.js';
 
-const thumbnail = (dir, name, dest) => {
+export default function(dir, name, dest) {
   try {
     const filename = path.basename(name, path.extname(name)) + '.png';
     const filepath = path.join(dir, dest, filename);
@@ -30,5 +30,3 @@ const thumbnail = (dir, name, dest) => {
     return;
   }
 };
-
-module.exports = { thumbnail };

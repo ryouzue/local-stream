@@ -1,6 +1,6 @@
 import { log, reply, cap, color } from '../utils/common.js';
 
-export function mongoErrHandler(err, res) {
+export default function(err, res) {
   log(2, 'MongoDB Catch »', color.red(err.code));
   
   let match;

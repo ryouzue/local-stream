@@ -7,13 +7,14 @@ import config from '../../conf.json' assert { type: 'json' };
 import Post from '../models/post.js';
 import PostSchema from '../schemas/valid.post.js';
 
-import { mongoErrHandler } from '../handlers/mongoErrHandler.js';
+import mongoErrHandler from '../handlers/mongoErrHandler.js';
+import query from '../middleware/query.js';
 
 const { debug } = config;
 const router = Router();
 
 router.post('/', 
-  verify(PostSchema), 
+  verify(PostSchema),
   async (req, res) => {
     if (debug) log(4, 'POST - routes.post');
 
@@ -32,12 +33,14 @@ router.post('/',
   }
 )
 
-router.get('/', async(req, res) => {
+router.get('/', 
+  query(Post),
+  async(req, res) => {
   if (debug) log(4, 'GET - routes.post');
   try {
-    const post = await Post.find();
+    const post = await Post.find(req.queried);
     if(!post) return reply(res, 400, 'No posts available');
-    res.status(200).json(post);
+    reply(res, 200, post);
   } catch(err) {
     log(2, 'GET - routes.post »', err.message);
     reply(res, 400, err.message);

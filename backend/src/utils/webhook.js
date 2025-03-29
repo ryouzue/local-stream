@@ -8,7 +8,7 @@ const filter = str => str
   .replace(/\x1B\[[0-9;]*m/g, '')
   .replace(/(https?:\/\/[^\s]+)/g, match => `\"${match}\"`);
 
-export default async function webhook(log, ...message) {
+export default async function(log, ...message) {
   try {
     const combine = message.join(' ');
     await axios.post(url, {

@@ -25,7 +25,11 @@ const PostSchema = new Schema({
   coverImage: String,
 });
 
-/* Prevent case sensitive - for test
+/* 
+# PLANNED
+-> Prevent case sensitive
+
+# PROTOTYPE
 PostSchema.index(
   { title: 1 }, 
   { unique: true, collation: 
@@ -34,7 +38,7 @@ PostSchema.index(
 );
 */
 
-PostSchema.pre('save', async function (next) {
+PostSchema.pre('save', async (next) => {
   if (this.isNew) {
     const counter = await Count.findOneAndUpdate(
       { name: 'Post' },

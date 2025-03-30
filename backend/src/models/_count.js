@@ -10,6 +10,8 @@ const CountSchema = new Schema({
     type: Number,
     default: 0
   }
+}, {
+  versionKey: false
 });
 
 export default model('_Count', CountSchema);

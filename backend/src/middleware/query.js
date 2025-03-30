@@ -3,24 +3,25 @@ import { log, reply, cap } from '../utils/common.js';
 import config from '../../conf.json' assert { type: 'json' };
 const { debug } = config;
 
-
-export const search = (model) => {
+export const query = (model) => {
   return async (req, res, next) => {
-    if (debug) log(5, 'md.query');
+    if (debug) log(5, 'md.query \u2604');
     try {
       let query = {};
-      let type;
 
+      /* Resolve query based on existing schema property */
       for (const key in req.query) {
         if (!req.query.hasOwnProperty(key) && !model.schema.path(key)) return;
-        type = model.schema.path(key).instance;
-        type === 'String' && (query[key] = { $regex: new RegExp(req.query[key], 'i') });
-        type === 'Number' && (query[key] = Number(req.query[key]));
-        type === 'Object' && (query[key] = { $in: req.query[key].split(',') });
+        const type = model.schema.path(key).instance;
+        switch (type) {
+          case 'String': query[key] = { $regex: new RegExp(req.query[key], 'i') }; break;
+          case 'Number': query[key] = Number(req.query[key]); break;
+          case 'Object': query[key] = { $in: req.query[key].split(',') }; break;
+        }
       }
 
-      req.model = model;
       req.query = query;
+      log(5, '»', query);
       next();
     } catch (err) {
       log(2, 'md.query »', err.message);
@@ -29,20 +30,30 @@ export const search = (model) => {
   }
 }
 
-export const separate = (...fields) => {
+const separate = (body, fields) => {
+  const def = ['_id', 'id', '__v', 'createdAt', 'updatedAt'];
+  if (fields && fields.length > 0) def.push(...fields);
+
+  let incl = {}, excl = {};
+  /* Resolve separation between protected and regular properties */
+  for (const key of Object.keys(body)) {
+    if (!def.includes(key)) incl[key] = body[key];
+    else excl[key] = body[key];
+  }
+
+  return { incl, excl };
+};
+
+export const protect = (...fields) => {
   return async (req, res, next) => {
-    if (debug) log(5, 'md.query-separate');
+    if (debug) log(5, 'md.query-separate \u2604');
     try {
-      let { query, model, body } = req;
-      let post = await model.findOne({ id: query.id }).then(post => post.toObject());
-      if (!post) return reply(res, 404, { message: 'Post not found' });
+      const { body } = req;
+      if (!body) return reply(res, 400, { message: 'No body provided' });
 
-      const excl = {};
-      const incl = {};
-      for (const prop in post) fields.includes(prop) && (excl[prop] = post[prop]);
-      for (const prop in body) !fields.includes(prop) && (incl[prop] = post[prop]);
-
-      req.excl = excl;
+      const { incl, excl } = separate(body, fields);
+      if (!(Object.keys(excl).length === 0)) return reply(res, 400, { message: 'You cannot modify protected properties!', props: excl });
+      
       req.incl = incl;
       next();
     } catch (err) {
@@ -52,38 +63,32 @@ export const separate = (...fields) => {
   }
 }
 
-export const compare = async (req, res, next) => {
-  if (debug) log(5, 'md.query-compare');
+export const compare = async (model, post, body) => {
+  if (debug) log(5, 'md.query-compare \u2604');
   try {
-    const { body, excl, incl } = req;
-    let state = false,
-        once = false;
-
-    log(2, {
-      excl: excl,
-      incl: incl
-    })
-
-    const protect = key => excl.hasOwnProperty(key);
-    const compare = key => incl[key] === body[key];
+    const { incl } = separate(post);
+    let result = { state: true, mod: [], add: [], del: [] }
 
     for (const key in body) {
-      if (protect(key)) {
-        log(4, 'Protect', key);
-        continue;
-      };
-
-      if (compare(key)) {
-        log(4, 'Compare', key)
-        state = true;
+      if (body.hasOwnProperty(key) && !incl.hasOwnProperty(key)) {
+        result.add.push(key);
+        result.state = false;
+      } else if (incl[key] !== body[key]) {
+        result.mod.push(key);
+        result.state = false;
       }
-      // once && log(2, { key: key, old: incl[key], new: body[key] }), once = false;
     }
 
-    if (state) return reply(res, 400, { message: 'No modifications' });
-    next();
+    for (const key in incl) {
+      if (incl.hasOwnProperty(key) && !body.hasOwnProperty(key)) {
+        result.del.push(key);
+        result.state = false;
+      }
+    }
+
+    log(2, { result: result })
+    return result;
   } catch (err) {
     log(2, 'md.query-compare »', err.message);
-    return reply(res, 400, { error: 'Internal Server Error' });
   }
 }

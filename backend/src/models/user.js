@@ -42,8 +42,8 @@ const VideoProgSchema = new Schema({
 const UserSchema = new Schema({
   id: {
     type: Number,
-    required: true,
-    unique: true
+    unique: true,
+    immutable: true
   },
   username: {
     type: String,
@@ -65,7 +65,8 @@ const UserSchema = new Schema({
   timestamps: true
 })
 
-UserSchema.pre('save', async (next) => {
+UserSchema.pre('save', async function (next) {
+  if (this.isModified('password')) this.password = await argon.hash(this.password);
   if (this.isNew) {
     const counter = await Count.findOneAndUpdate(
       { id: 'id' },
@@ -74,11 +75,6 @@ UserSchema.pre('save', async (next) => {
     );
     this.id = counter.seq;
   }
-  next();
-})
-
-UserSchema.pre('save', async (next) => {
-  if (this.isModified('password')) this.password = await argon.hash(this.password);
   next();
 }, {
   versionKey: false

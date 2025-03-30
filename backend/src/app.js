@@ -1,11 +1,13 @@
-import express, { json, urlencoded } from 'express';
+import express from 'express';
 import { reply } from './utils/common.js';
+import { appErr } from './handlers/errors.js';
 
 const app = express();
 
 /* Use handlers */
-app.use(json());
-app.use(urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(appErr);
 
 /* 
 # PLANNED

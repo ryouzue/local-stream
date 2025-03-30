@@ -11,7 +11,7 @@ export const verify = (schema) => {
       if (debug) log(5, 'md.valid');
       try {
         const result = validationResult(req);
-        if (!result.isEmpty()) return res.status(400).json(result.array());
+        if (!result.isEmpty()) return reply(res, 400, result.array());
 
         req.data = matchedData(req);
         next();

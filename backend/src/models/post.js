@@ -2,10 +2,6 @@ import { Schema, model } from 'mongoose';
 import Count from './_count.js';
 
 const PostSchema = new Schema({
-  id: {
-    type: Number,
-    unique: true
-  },
   title: {
     type: String,
     required: true,
@@ -23,6 +19,9 @@ const PostSchema = new Schema({
     required: true
   },
   coverImage: String,
+}, {
+  versionKey: false,
+  timestamps: true
 });
 
 /* 
@@ -49,6 +48,8 @@ PostSchema.pre('save', async (next) => {
     this.id = counter.seq;
   }
   next();
+}, {
+  versionKey: false
 });
 
 export default model('Post', PostSchema);

@@ -60,6 +60,9 @@ const UserSchema = new Schema({
     anime: [AnimeProgSchema],
     video: [VideoProgSchema]
   }
+}, {
+  versionKey: false,
+  timestamps: true
 })
 
 UserSchema.pre('save', async (next) => {
@@ -77,6 +80,8 @@ UserSchema.pre('save', async (next) => {
 UserSchema.pre('save', async (next) => {
   if (this.isModified('password')) this.password = await argon.hash(this.password);
   next();
+}, {
+  versionKey: false
 })
 
 export default model('User', UserSchema);

@@ -19,10 +19,8 @@ export const search = (model) => {
         type === 'Object' && (query[key] = { $in: req.query[key].split(',') });
       }
 
-      const result = await model.findOne(query);
-      if (!result) return reply(res, 404, { message: `Not found (${cap(type)})` });
-
-      req.query = result;
+      req.model = model;
+      req.query = query;
       next();
     } catch (err) {
       log(2, 'md.query »', err.message);
@@ -32,21 +30,20 @@ export const search = (model) => {
 }
 
 export const separate = (...fields) => {
-  return (req, res, next) => {
+  return async (req, res, next) => {
     if (debug) log(5, 'md.query-separate');
     try {
-      const query = req.query.toObject();
-      const included = {},
-        excluded = {};
+      let { query, model, body } = req;
+      let post = await model.findOne({ id: query.id }).then(post => post.toObject());
+      if (!post) return reply(res, 404, { message: 'Post not found' });
 
-      for (const prop in query) {
-        fields.includes(prop)
-          ? included[prop] = query[prop]
-          : excluded[prop] = query[prop];
-      };
+      const excl = {};
+      const incl = {};
+      for (const prop in post) fields.includes(prop) && (excl[prop] = post[prop]);
+      for (const prop in body) !fields.includes(prop) && (incl[prop] = post[prop]);
 
-      req.incl = included;
-      req.excl = excluded;
+      req.excl = excl;
+      req.incl = incl;
       next();
     } catch (err) {
       log(2, 'md.query-separate »', err.message);
@@ -58,28 +55,32 @@ export const separate = (...fields) => {
 export const compare = async (req, res, next) => {
   if (debug) log(5, 'md.query-compare');
   try {
-    const { excl: older, body: newer } = req;
-    const result = { state: true, add: [], del: [], mod: [] };
+    const { body, excl, incl } = req;
+    let state = false,
+        once = false;
 
-    for (const key in older) {
-      !newer.hasOwnProperty(key) && (
-        result.del.push(key),
-        result.state = false
-      );
-      older[key] !== newer[key] && (
-        result.mod.push(key),
-        result.state = false
-      );
+    log(2, {
+      excl: excl,
+      incl: incl
+    })
+
+    const protect = key => excl.hasOwnProperty(key);
+    const compare = key => incl[key] === body[key];
+
+    for (const key in body) {
+      if (protect(key)) {
+        log(4, 'Protect', key);
+        continue;
+      };
+
+      if (compare(key)) {
+        log(4, 'Compare', key)
+        state = true;
+      }
+      // once && log(2, { key: key, old: incl[key], new: body[key] }), once = false;
     }
 
-    for (const key in newer) {
-      !older.hasOwnProperty(key) && (
-        result.add.push(key),
-        result.state = false
-      );
-    }
-
-    if (result.state) return reply(res, 400, { message: 'No modifications' });
+    if (state) return reply(res, 400, { message: 'No modifications' });
     next();
   } catch (err) {
     log(2, 'md.query-compare »', err.message);

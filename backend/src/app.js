@@ -29,7 +29,7 @@ import post from './routes/post.js';
 
 /* Define routes */
 // app.use('/user', user);
-app.use('/post', post);
+app.use('/posts', post);
 
 /* Default GET */
 app.get('/', (req, res) => {

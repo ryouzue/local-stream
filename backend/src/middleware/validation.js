@@ -13,7 +13,7 @@ export const verify = (schema) => {
         const result = validationResult(req);
         if (!result.isEmpty()) return res.status(400).json(result.array());
 
-        req.data = matchedData(req);;
+        req.data = matchedData(req);
         next();
       } catch (err) {
         log(2, 'md.valid »', err.message);

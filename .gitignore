@@ -1,9 +1,12 @@
 # Custom
-node_modules
-package-lock.json
 .backup
+.planned
+.env
 
+# Frontend
 frontend/public/_icons
 
+# Generic
+node_modules
+package-lock.json
 .vscode/*
-.env

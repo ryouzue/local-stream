@@ -7,9 +7,8 @@ import config from '../../conf.json' assert { type: 'json' };
 import User from '../models/user.js';
 import UserSchema from '../schemas/valid.user.js';
 
-import mongoErrHandler from '../handlers/mongoErrHandler.js';
 import { search, separate, compare } from '../middleware/query.js';
-import { verify } from '../middleware/schema.js';
+import { verify } from '../middleware/validation.js';
 
 const { debug } = config;
 const router = Router();
@@ -27,12 +26,11 @@ router.post('/',
 
     try {
       const data = match(req);
-      const user = await User.create(data)
-        .catch(err => mongoErrHandler(err, res));
-      res.status(201).json(user);
+      const user = await User.create(data);
+      reply(res, 201, user);
     } catch(err) {
       log(2, 'POST - routes.user »', err.message);
-      reply(res, 400, err.message);
+      reply(res, 400, { message: 'Internal Server Error' });
     }
   }
 )

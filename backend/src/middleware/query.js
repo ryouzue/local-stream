@@ -19,7 +19,7 @@ export const query = (model) => {
           case 'Object': query[key] = { $in: req.query[key].split(',') }; break;
         }
       }
-      
+
       req.model = model;
       req.query = query;
       log(5, '»', query);

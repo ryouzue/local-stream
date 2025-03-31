@@ -4,7 +4,7 @@ import { log, reply } from '../utils/common.js';
 import config from '../../conf.json' assert { type: 'json' };
 
 import Post from '../models/post.js';
-import PostSchema, { updatePostSchema } from '../schemas/valid.post.js';
+import PostSchema, { optPostSchema } from '../schemas/valid.post.js';
 
 import { query, protect, compare } from '../middleware/query.js';
 import { verify } from '../middleware/validation.js';
@@ -18,8 +18,10 @@ router.get('/',
     if (debug) log(4, 'GET - routes.post');
     try {
       const { query } = req;
+
       const post = await Post.find(query);
       if (!post) return reply(res, 404, { message: 'Posts not found' });
+
       reply(res, 201, post);
     } catch (err) {
       log(2, 'GET - routes.post »', err.message);
@@ -52,9 +54,10 @@ router.post('/',
   async (req, res) => {
     if (debug) log(4, req.method, '- routes.post');
     try {
-      const { body } = req;
+      const { body, query } = req;
+      log(2, query);
 
-      let post = await Post.findOne({ title: body.title });
+      let post = await Post.findOne(query);
       if (post) return reply(res, 400, { message: 'Post already exists' });
 
       post = await Post.create(body);
@@ -67,24 +70,26 @@ router.post('/',
 )
 
 router.put('/q',
-  verify(updatePostSchema),
+  verify(optPostSchema),
   query(Post),
   protect(),
   async (req, res) => {
     if (debug) log(4, req.method, '- routes.post');
     try {
-      let { body, query, incl } = req;
+      const { body, query, model, incl } = req;
+      if (Object.keys(query).length === 0) return reply(res, 400, { message: 'No query provided' });
 
       let post = await Post.findOne({ id: query.id }).then(arr => arr.toObject());
       if (!post) return reply(res, 400, { message: 'Post not found' });
 
-      const result = await compare(post, body);
+      const { result } = await compare(post, body, model, false);
+      if (result.unid.length > 0) return reply(res, 400, { message: 'Invalid properties', props: result.unid });
       if (result.state) return reply(res, 400, { message: 'No changes made' });
 
-      log(4, 'PASS');
-      return res.sendStatus(200);
+      result.add.forEach(key => post[key] = body[key]);
+      result.del.forEach(key => delete post[key]);
 
-      post = await Post.findOneAndReplace(query, { ...post, ...incl }, { new: true });
+      post = await Post.findOneAndReplace({ id: query.id }, { ...post, ...incl }, { new: true });
       reply(res, 200, post);
     } catch (err) {
       log(2, req.method, '- routes.post »', err.message);
@@ -94,15 +99,23 @@ router.put('/q',
 )
 
 router.patch('/q',
-  verify(updatePostSchema),
+  verify(optPostSchema),
   query(Post),
   protect(),
   async (req, res) => {
     if (debug) log(4, req.method, '- routes.post');
     try {
-      let { query, body, excl } = req;
-      post = await Post.findOneAndUpdate(query, { ...excl, ...body }, { new: true });
+      const { body, query, model, incl } = req;
+      if (Object.keys(query).length === 0) return reply(res, 400, { message: 'No query provided' });
 
+      let post = await Post.findOne({ id: query.id }).then(arr => arr.toObject());
+      if (!post) return reply(res, 400, { message: 'Post not found' });
+
+      const { result } = await compare(post, body, model, true);
+      if (result.unid.length > 0) return reply(res, 400, { message: 'Invalid properties', props: result.unid });
+      if (result.state) return reply(res, 400, { message: 'No changes made' });
+
+      post = await Post.findOneAndUpdate({ id: query.id }, { ...post, ...incl }, { new: true });
       reply(res, 200, post);
     } catch (err) {
       log(2, req.method, '- routes.post »', err.message);
@@ -116,9 +129,13 @@ router.delete('/q',
   async (req, res) => {
     if (debug) log(4, req.method, '- routes.post');
     try {
-      let { query, post } = req;
-      post = await Post.findOneAndDelete(query);
+      const { query } = req;
+      if (Object.keys(query).length === 0) return reply(res, 400, { message: 'No query provided' });
 
+      let post = await Post.findOne({ id: query.id });
+      if (!post) return reply(res, 404, { message: 'Post not found' });
+
+      post = await Post.findOneAndDelete({ id: query.id });
       reply(res, 200, { message: 'Post deleted successfully', post });
     } catch (err) {
       log(2, req.method, '- routes.post »', err.message);

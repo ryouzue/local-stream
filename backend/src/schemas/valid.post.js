@@ -46,7 +46,7 @@ export default {
   coverImage: String
 }
 
-export const updatePostSchema = {
+export const optPostSchema = {
   title: {
     optional: true,
     isLength: {

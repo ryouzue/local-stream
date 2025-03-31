@@ -19,7 +19,8 @@ export const query = (model) => {
           case 'Object': query[key] = { $in: req.query[key].split(',') }; break;
         }
       }
-
+      
+      req.model = model;
       req.query = query;
       log(5, '»', query);
       next();
@@ -53,7 +54,7 @@ export const protect = (...fields) => {
 
       const { incl, excl } = separate(body, fields);
       if (!(Object.keys(excl).length === 0)) return reply(res, 400, { message: 'You cannot modify protected properties!', props: excl });
-      
+
       req.incl = incl;
       next();
     } catch (err) {
@@ -63,31 +64,33 @@ export const protect = (...fields) => {
   }
 }
 
-export const compare = async (model, post, body) => {
+export const compare = async (post, body, model, partial) => {
   if (debug) log(5, 'md.query-compare \u2604');
   try {
     const { incl } = separate(post);
-    let result = { state: true, mod: [], add: [], del: [] }
-
+    let result = { state: true, unid: [], mod: [], add: [], del: [] }
+ 
+    /* Compare body with included properties */
     for (const key in body) {
-      if (body.hasOwnProperty(key) && !incl.hasOwnProperty(key)) {
-        result.add.push(key);
-        result.state = false;
-      } else if (incl[key] !== body[key]) {
-        result.mod.push(key);
-        result.state = false;
-      }
+      if (!body.hasOwnProperty(key)) continue;
+      if (!model.schema.path(key)) result.unid.push(key);
+      if (!incl.hasOwnProperty(key) 
+        && model.schema.path(key)) result.add.push(key) 
+          && (result.state = false);
+      else if (incl.hasOwnProperty(key) 
+        && incl[key] !== body[key]) result.mod.push(key) 
+          && (result.state = false);
     }
 
+    /* Compare included properties with body */
     for (const key in incl) {
-      if (incl.hasOwnProperty(key) && !body.hasOwnProperty(key)) {
-        result.del.push(key);
-        result.state = false;
-      }
+      if (!incl.hasOwnProperty(key)
+        || body.hasOwnProperty(key)) continue;
+      if(!partial) result.del.push(key)
+        && (result.state = false);
     }
 
-    log(2, { result: result })
-    return result;
+    return { result };
   } catch (err) {
     log(2, 'md.query-compare »', err.message);
   }

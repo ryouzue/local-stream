@@ -6,7 +6,7 @@ import config from '../../conf.json' assert { type: 'json' };
 import Post from '../models/post.js';
 import PostSchema, { optPostSchema } from '../schemas/valid.post.js';
 
-import { query, protect, compare } from '../middleware/query.js';
+import { query, querySeparate, queryCompare } from '../middleware/query.js';
 import { verify } from '../middleware/validation.js';
 
 const { debug } = config;
@@ -31,12 +31,11 @@ router.get('/',
 )
 
 router.get('/q',
-  query(Post),
+  query(Post, true, true),
   async (req, res) => {
     if (debug) log(4, req.method, '- routes.post');
     try {
       const { query } = req;
-      if (Object.keys(query).length === 0) return reply(res, 400, { message: 'No query provided' });
 
       const post = await Post.findOne(query);
       if (!post) return reply(res, 404, { message: 'Post not found' });
@@ -54,10 +53,9 @@ router.post('/',
   async (req, res) => {
     if (debug) log(4, req.method, '- routes.post');
     try {
-      const { body, query } = req;
-      log(2, query);
+      const { body } = req;
 
-      let post = await Post.findOne(query);
+      let post = await Post.findOne({ title: body.title })
       if (post) return reply(res, 400, { message: 'Post already exists' });
 
       post = await Post.create(body);
@@ -71,18 +69,17 @@ router.post('/',
 
 router.put('/q',
   verify(optPostSchema),
-  query(Post),
-  protect(),
+  query(Post, true),
+  querySeparate(),
   async (req, res) => {
     if (debug) log(4, req.method, '- routes.post');
     try {
       const { body, query, model, incl } = req;
-      if (Object.keys(query).length === 0) return reply(res, 400, { message: 'No query provided' });
 
       let post = await Post.findOne({ id: query.id }).then(arr => arr.toObject());
       if (!post) return reply(res, 400, { message: 'Post not found' });
 
-      const { result } = await compare(post, body, model, false);
+      const { result } = await queryCompare(post, body, model, false);
       if (result.unid.length > 0) return reply(res, 400, { message: 'Invalid properties', props: result.unid });
       if (result.state) return reply(res, 400, { message: 'No changes made' });
 
@@ -100,18 +97,17 @@ router.put('/q',
 
 router.patch('/q',
   verify(optPostSchema),
-  query(Post),
-  protect(),
+  query(Post, true),
+  querySeparate(),
   async (req, res) => {
     if (debug) log(4, req.method, '- routes.post');
     try {
       const { body, query, model, incl } = req;
-      if (Object.keys(query).length === 0) return reply(res, 400, { message: 'No query provided' });
 
       let post = await Post.findOne({ id: query.id }).then(arr => arr.toObject());
       if (!post) return reply(res, 400, { message: 'Post not found' });
 
-      const { result } = await compare(post, body, model, true);
+      const { result } = await queryCompare(post, body, model, true);
       if (result.unid.length > 0) return reply(res, 400, { message: 'Invalid properties', props: result.unid });
       if (result.state) return reply(res, 400, { message: 'No changes made' });
 
@@ -125,12 +121,11 @@ router.patch('/q',
 )
 
 router.delete('/q',
-  query(Post),
+  query(Post, true),
   async (req, res) => {
     if (debug) log(4, req.method, '- routes.post');
     try {
       const { query } = req;
-      if (Object.keys(query).length === 0) return reply(res, 400, { message: 'No query provided' });
 
       let post = await Post.findOne({ id: query.id });
       if (!post) return reply(res, 404, { message: 'Post not found' });

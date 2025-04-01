@@ -3,11 +3,12 @@ import { log, reply, cap } from '../utils/common.js';
 import config from '../../conf.json' assert { type: 'json' };
 const { debug } = config;
 
-export const query = (model) => {
+export const query = (model, specify) => {
   return async (req, res, next) => {
     if (debug) log(5, 'md.query \u2604');
     try {
       let query = {};
+      log(5, '»', query);
 
       /* Resolve query based on existing schema property */
       for (const key in req.query) {
@@ -20,9 +21,11 @@ export const query = (model) => {
         }
       }
 
+      /* Resolve query based on function needs */
+      if (specify && Object.keys(query).length === 0) return reply(res, 400, { message: 'No query provided' });
+
       req.model = model;
       req.query = query;
-      log(5, '»', query);
       next();
     } catch (err) {
       log(2, 'md.query »', err.message);
@@ -31,12 +34,13 @@ export const query = (model) => {
   }
 }
 
-const separate = (body, fields) => {
+const separateProps = (body, fields) => {
   const def = ['_id', 'id', '__v', 'createdAt', 'updatedAt'];
   if (fields && fields.length > 0) def.push(...fields);
 
-  let incl = {}, excl = {};
-  /* Resolve separation between protected and regular properties */
+  let incl = {}, 
+      excl = {};
+  /* Resolve separation between specified and regular properties */
   for (const key of Object.keys(body)) {
     if (!def.includes(key)) incl[key] = body[key];
     else excl[key] = body[key];
@@ -45,15 +49,15 @@ const separate = (body, fields) => {
   return { incl, excl };
 };
 
-export const protect = (...fields) => {
+export const querySeparate = (...fields) => {
   return async (req, res, next) => {
     if (debug) log(5, 'md.query-separate \u2604');
     try {
       const { body } = req;
       if (!body) return reply(res, 400, { message: 'No body provided' });
 
-      const { incl, excl } = separate(body, fields);
-      if (!(Object.keys(excl).length === 0)) return reply(res, 400, { message: 'You cannot modify protected properties!', props: excl });
+      const { incl, excl } = separateProps(body, fields);
+      if (!(Object.keys(excl).length === 0)) return reply(res, 400, { message: 'You cannot modify specific properties', props: excl });
 
       req.incl = incl;
       next();
@@ -64,10 +68,10 @@ export const protect = (...fields) => {
   }
 }
 
-export const compare = async (post, body, model, partial) => {
+export const queryCompare = async (post, body, model, partial) => {
   if (debug) log(5, 'md.query-compare \u2604');
   try {
-    const { incl } = separate(post);
+    const { incl } = separateProps(post);
     let result = { state: true, unid: [], mod: [], add: [], del: [] }
  
     /* Compare body with included properties */

@@ -27,11 +27,13 @@ fs.readdirSync(routes)
 
 /* Import routes */
 // import user from './routes/user.js';
-import post from './routes/post.js';
+// import post from './routes/post.js';
+import images from './routes/image.js';
 
 /* Define routes */
 // app.use('/user', user);
-app.use('/posts', post);
+// app.use('/posts', post);
+app.use('/images', images);
 
 /* Default GET */
 app.get('/', (req, res) => {

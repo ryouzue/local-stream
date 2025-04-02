@@ -8,10 +8,10 @@ export const query = (model, specify) => {
     if (debug) log(5, 'md.query \u2604');
     try {
       let query = {};
-      log(5, '»', query);
 
       /* Resolve query based on existing schema property */
-      for (const key in req.query) {
+      if (req.query._id) query._id = req.query._id;
+      else for (const key in req.query) {
         if (!req.query.hasOwnProperty(key) && !model.schema.path(key)) return;
         const type = model.schema.path(key).instance;
         switch (type) {
@@ -21,6 +21,7 @@ export const query = (model, specify) => {
         }
       }
 
+      log(2, query);
       /* Resolve query based on function needs */
       if (specify && Object.keys(query).length === 0) return reply(res, 400, { message: 'No query provided' });
 
@@ -68,28 +69,28 @@ export const querySeparate = (...fields) => {
   }
 }
 
-export const queryCompare = async (post, body, model, partial) => {
+export const queryCompare = async (older, newer, model, partial) => {
   if (debug) log(5, 'md.query-compare \u2604');
   try {
-    const { incl } = separateProps(post);
+    const { incl } = separateProps(older);
     let result = { state: true, unid: [], mod: [], add: [], del: [] }
  
     /* Compare body with included properties */
-    for (const key in body) {
-      if (!body.hasOwnProperty(key)) continue;
+    for (const key in newer) {
+      if (!newer.hasOwnProperty(key)) continue;
       if (!model.schema.path(key)) result.unid.push(key);
       if (!incl.hasOwnProperty(key) 
         && model.schema.path(key)) result.add.push(key) 
           && (result.state = false);
       else if (incl.hasOwnProperty(key) 
-        && incl[key] !== body[key]) result.mod.push(key) 
+        && incl[key] !== newer[key]) result.mod.push(key) 
           && (result.state = false);
     }
 
     /* Compare included properties with body */
     for (const key in incl) {
       if (!incl.hasOwnProperty(key)
-        || body.hasOwnProperty(key)) continue;
+        || newer.hasOwnProperty(key)) continue;
       if(!partial) result.del.push(key)
         && (result.state = false);
     }

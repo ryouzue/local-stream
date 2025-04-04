@@ -1,28 +1,19 @@
 import { Schema, model } from 'mongoose';
 
 const FileSchema = new Schema({
-  name: {
+  filename: {
     type: String,
-    required: true,
     trim: true
   },
-  path: {
+  originalname: {
     type: String,
-    required: true,
     trim: true
   },
-  length: {
-    type: Number,
-    required: true
-  },
-  size: { 
-    type: Number,
-    required: true
-  },
-  mimeType: {
-    type: String,
-    required: true
-  }
+  encoding: String,
+  path: String,
+  length: Number,
+  size: Number,
+  mimetype: String
 }, {
   versionKey: false,
   timestamps: true

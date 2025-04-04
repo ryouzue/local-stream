@@ -1,6 +1,6 @@
 import express from 'express';
-import { reply } from './utils/common.js';
 import { appErr } from './handlers/errors.js';
+import { reply } from './utils/common.js';
 
 const app = express();
 

@@ -8,11 +8,13 @@ import ImageSchema from '../schemas/image.js';
 
 import { query, querySeparate, queryCompare } from '../middleware/query.js';
 import { verify } from '../middleware/validator.js';
+import { upload } from '../middleware/multer.js';
 
 const { debug } = config;
 const router = Router();
 
 router.get('/',
+  query(Image),
   query(Image),
   async (req, res) => {
     if (debug) log(4, req.method, '- routes.image');
@@ -49,17 +51,16 @@ router.get('/q',
 )
 
 router.post('/',
-  verify(ImageSchema),
-  async (req, res) => {
+  // verify(ImageSchema),
+  upload.single('image'),
+  async (req, res, next) => {
     if (debug) log(4, req.method, '- routes.image');
     try {
-      const { body, query } = req;
-
-      let data = await Image.findOne({ file: query.file })
-      log(2, data);
-      if (data) return reply(res, 400, { message: 'Image already exists' });
-
-      data = await Image.create(body);
+      const { body, file } = req;
+      const data = await Image.create({
+        ...body,
+        file: file._id
+      });
       reply(res, 201, data);
     } catch (err) {
       log(2, req.method, '- routes.image »', err.message);

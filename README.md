@@ -9,11 +9,11 @@ I'm working on this based on personal interest, do not expect a lot.
 ## To do
 
 1. Add more API routes to handle instances such as anime, videos, images
-2. See if I can nest documents by referring to each (ex; _Store) in mongodb
+x. Continue the frontend 
 
 ## Planned / Unsure
 
-1. Convert the backend - frontend in ts/tsx for better compatibility & data track
+1. Convert the backend - frontend in ts/tsx for better understanding & documentation
 
 ### Mongo Models
 1 [Anime](./backend/src/_planned/models/anime.js)

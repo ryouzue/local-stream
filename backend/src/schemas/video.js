@@ -50,12 +50,13 @@ export default {
       errorMessage: "Not an array"
     }
   },
-  file: {
-    isString: {
-      errorMessage: "Not a string"
-    },
-    notEmpty: {
-      errorMessage: "Empty value"
+  video: {
+    custom: {
+      options: (value, { req }) => {
+        if (!req.file) throw new Error('\'video\' file is required');
+        return true;
+      },
+      errorMessage: "\'video\' file is required"
     }
   }
 }

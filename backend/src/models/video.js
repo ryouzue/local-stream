@@ -27,20 +27,16 @@ const VideoSchema = new Schema({
   timestamps: true
 });
 
-VideoSchema.pre('save', async (next) => {
-  try {
-    if (this.isNew) {
-      const counter = await Count.findOneAndUpdate(
-        { name: 'Video' },
-        { $inc: { seq: 1 } },
-        { new: true, upsert: true }
-      );
-      this.id = counter.seq;
-    }
-    next();
-  } catch (err) {
-    next(err)
+VideoSchema.pre('save', async function (next) {
+  if (this.isNew) {
+    const counter = await Count.findOneAndUpdate(
+      { name: 'Video' },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true }
+    );
+    this.id = counter.seq;
   }
+  next();
 });
 
 export default model('Video', VideoSchema);

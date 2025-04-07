@@ -29,20 +29,16 @@ const ImageSchema = new Schema({
   timestamps: true
 });
 
-ImageSchema.pre('save', async (next) => {
-  try {
-    if (this.isNew) {
-      const counter = await Count.findOneAndUpdate(
-        { name: 'Image' },
-        { $inc: { seq: 1 } },
-        { new: true, upsert: true }
-      );
-      this.id = counter.seq;
-    }
-    next();
-  } catch (err) {
-    next(err)
+ImageSchema.pre('save', async function (next) {
+  if (this.isNew) {
+    const counter = await Count.findOneAndUpdate(
+      { name: 'Image' },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true }
+    );
+    this.id = counter.seq;
   }
+  next();
 });
 
 export default model('Image', ImageSchema);

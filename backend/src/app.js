@@ -7,7 +7,6 @@ const app = express();
 /* Use handlers */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(appErr);
 
 /* 
 # PLANNED
@@ -42,5 +41,8 @@ app.get('/', (req, res) => {
     message: 'Application is running'
   })
 })
+
+/* Error handling */
+app.use(appErr);
 
 export default app;

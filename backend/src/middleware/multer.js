@@ -9,63 +9,98 @@ const { media } = config;
 
 import _File from '../models/_file.js';
 
-export const storage = () => {
-  try {
-    return diskStorage({
-      destination: (req, file, cb) => {
-        const dir = path.join(media, file.fieldname);
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-        cb(null, dir);
-      },
-      filename: (req, file, cb) => {
-        const name = (time('-', true), string(10) + path.extname(file.originalname));
-        cb(null, name);
-      }
-    });
-  } catch(err) {
-    log(3, 'md.multer', err.message);
-  }
-};
+const ext = file => path.extname(file.originalname);
+const fon = file => file.originalname.replace(ext(file), '');
+const loc = file => fs.existsSync(file.path);
 
-export const upload = {
-  def: multer({ 
-    storage: storage() 
-  }),
-
-  single: (field) => {
-    return (req, res, next) => {
-      upload.def.single(field)(req, res, async (err) => {
-        try {
-          if (err) return reply(res, 500, { error: 'Internal Server Error' });
-
-          const { file, body } = req;
-          if (!file) return reply(res, 400, { message: 'Bad Request' });
-
-          const origin = file.originalname.replace(path.extname(file.originalname), '');
-          let data = await _File.findOne({ originalname: origin });
-          if (data) return reply(res, 400, { message: 'File already exists' });
-          if (field !== file.fieldname) return reply(res, 400, { message: `File must be an ${field.replace(/\'|\"/g, '')}` });
-
-          data = await _File.create({ ...file, originalname: origin });
-          req.file = data;
-          req.body = body;
-
-          next();
-        } catch(err) {
-          log(2, 'md.multer - upload.single »', err.message);
-          reply(res, 500, { error: 'Internal Server Error' });
-        }
-      })
-    }
+const storage = diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join(media, file.fieldname);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
   },
+  filename: (req, file, cb) => {
+    const fn = (time('-', true), string(10) + ext(file));
+    cb(null, fn);
+  }
+})
 
-  multi: (field, limit) => {
-    return (req, res, next) => {
-      upload.def.array(field, limit)(req, res, (err) => {
-        if(err) return reply(res, 500, { error: 'Internal Server Error' });
+const write = multer({
+  storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  }
+})
 
+export const upload = (field, options = {}) => {
+  const {
+    ow = false,
+    rq = true,
+    up = true,
+    at = null
+  } = options;
+
+  return async (req, res, next) => {
+    try {
+      const store = write.single(field);
+      store(req, res, async (err) => {
+        if (err) return next(err);
+
+        const { file } = req;
+        
+        if (!file && rq) return next(new Error('File is required'));
+        if (!file && !rq) return next();
+
+        let exist = null;
+        if (ow && req.params.id) {
+          let model = req.model;
+          if (!model) return next(new Error('Model is required'));
+
+          model = await model.findOne({ _id: req.params.id });
+          if (!model) return next(new Error('File not found'));
+
+          // exist = await model.findOne({ parent: model._id, originalname: fon(file) });
+        }
+        // let data = await _File.findOne({ originalname: fon(file) });
+        
+      })
+    } catch (err) {
+      next(err);
+    }
+  }
+}
+
+export const single = (field) => {
+  return (req, res, next) => {
+    try {
+      upload().single(field)(req, res, async (err) => {
+        if (err) return next(err);
+
+        const { file } = req;
+        log(2, file);
+        if (!file) return next(new Error('File is required'));
+
+        let data = await _File.findOne({ originalname: fon(file) });
+        if (!data) data = await _File.create({ ...file, originalname: fon(file) });
+
+        req.file = data;
         next();
       })
+    } catch (err) {
+      next(err);
+    }
+  }
+}
+
+export const multi = (field, limit) => {
+  return (req, res, next) => {
+    try {
+      upload().array(field, limit)(req, res, (err) => {
+        if (err) return next(err);
+        next();
+      })
+    } catch (err) {
+      next(err);
     }
   }
 }
